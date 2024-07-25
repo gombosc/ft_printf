@@ -6,7 +6,7 @@
 /*   By: cgombos <cgombos@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/22 17:29:10 by cgombos           #+#    #+#             */
-/*   Updated: 2024/07/25 17:04:08 by cgombos          ###   ########.fr       */
+/*   Updated: 2024/07/25 17:27:11 by cgombos          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,24 +28,27 @@ int	print_str(char *str)
 	return (0);
 }
 
-int	print_digit(long n, int base)
+int	print_digit(long n, int base, int upper)
 {
 	int		count;
 	char	*symbols;
 
-	symbols = "0123456789abcdef";
+	if (upper)
+		symbols = "0123456789ABCDEF";
+	else
+		symbols = "0123456789abcdef";
 	count = 0;
 	if (n < 0)
 	{
 		write(1, "-", 1);
-		return (print_digit(-n, base) + 1);
+		return (print_digit(-n, base, upper) + 1);
 	}
 	else if (n < base)
 		return (print_ch(symbols[n]));
 	else
 	{
-		count += print_digit(n / base, base);
-		return (count + print_digit(n % base, base));
+		count += print_digit(n / base, base, upper);
+		return (count + print_digit(n % base, base, upper));
 	}
 }
 
@@ -54,14 +57,18 @@ int	print_format(char specifier, va_list args)
 	int	count;
 
 	count = 0;
-	if (specifier == 'c')
+	if (specifier == '%')
+		count += print_ch('%');
+	else if (specifier == 'c')
 		count += print_ch(va_arg(args, int));
 	else if (specifier == 's')
 		count += print_str(va_arg(args, char *));
 	else if (specifier == 'd')
-		count += print_digit(va_arg(args, int), 10);
+		count += print_digit(va_arg(args, int), 10, 0);
 	else if (specifier == 'x')
-		count += print_digit(va_arg(args, unsigned int), 16);
+		count += print_digit(va_arg(args, unsigned int), 16, 0);
+	else if (specifier == 'X')
+		count += print_digit(va_arg(args, unsigned int), 16, 1);	
 	return (count);
 }
 
@@ -90,6 +97,7 @@ int	main(void)
 
 	ft_printf("Hello, %d\n", -122);
 
-	ft_printf("Hello, %x\n", 42);
+	ft_printf("Hello, %%\n", -32);
+	ft_printf("Hello, %x\n", -422);
 	return (0);
 }
