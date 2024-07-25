@@ -6,7 +6,7 @@
 /*   By: cgombos <cgombos@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/22 17:29:10 by cgombos           #+#    #+#             */
-/*   Updated: 2024/07/23 18:16:46 by cgombos          ###   ########.fr       */
+/*   Updated: 2024/07/25 17:04:08 by cgombos          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,46 +15,53 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-int	ft_printchar(int c)
+int	print_ch(int c)
 {
 	write(1, &c, 1);
 	return (1);
 }
 
-int	ft_printstr(char *str)
+int	print_str(char *str)
 {
 	while (*str)
-		ft_printchar(*str++);
+		print_ch(*str++);
+	return (0);
 }
 
-int	ft_printint(int n, int base)
+int	print_digit(long n, int base)
 {
-	int	count;
+	int		count;
+	char	*symbols;
 
+	symbols = "0123456789abcdef";
 	count = 0;
 	if (n < 0)
 	{
-		count += ft_printchar('-');
-		n *= -1;
+		write(1, "-", 1);
+		return (print_digit(-n, base) + 1);
 	}
-	if (n >= base)
-		count += ft_printint(n / base, base);
-	count += ft_printchar("0123456789abcdef"[n % base]);
-	return (count);
-
+	else if (n < base)
+		return (print_ch(symbols[n]));
+	else
+	{
+		count += print_digit(n / base, base);
+		return (count + print_digit(n % base, base));
+	}
 }
 
-int print_format(char specifier, va_list args)
+int	print_format(char specifier, va_list args)
 {
 	int	count;
 
 	count = 0;
 	if (specifier == 'c')
-		count += ft_printchar(va_arg(args, int));
+		count += print_ch(va_arg(args, int));
 	else if (specifier == 's')
-		count += ft_printstr(va_arg(args, char *));
+		count += print_str(va_arg(args, char *));
 	else if (specifier == 'd')
-		count += ft_printint(va_arg(args, int), 10);
+		count += print_digit(va_arg(args, int), 10);
+	else if (specifier == 'x')
+		count += print_digit(va_arg(args, unsigned int), 16);
 	return (count);
 }
 
@@ -71,15 +78,18 @@ int	ft_printf(const char *format, ...)
 			count += print_format(*(++format), args);
 		else
 			count += write(1, format, 1);
-		format++;
+		++format;
 	}
 	va_end(args);
 	return (count);
 }
 
-
 int	main(void)
 {
-	ft_printf("Hello, %s", 42);
+	// Testing cases
+
+	ft_printf("Hello, %d\n", -122);
+
+	ft_printf("Hello, %x\n", 42);
 	return (0);
 }
