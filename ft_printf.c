@@ -6,51 +6,11 @@
 /*   By: cgombos <cgombos@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/22 17:29:10 by cgombos           #+#    #+#             */
-/*   Updated: 2024/07/25 17:27:11 by cgombos          ###   ########.fr       */
+/*   Updated: 2024/07/26 19:26:11 by cgombos          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <stdlib.h>
-
-int	print_ch(int c)
-{
-	write(1, &c, 1);
-	return (1);
-}
-
-int	print_str(char *str)
-{
-	while (*str)
-		print_ch(*str++);
-	return (0);
-}
-
-int	print_digit(long n, int base, int upper)
-{
-	int		count;
-	char	*symbols;
-
-	if (upper)
-		symbols = "0123456789ABCDEF";
-	else
-		symbols = "0123456789abcdef";
-	count = 0;
-	if (n < 0)
-	{
-		write(1, "-", 1);
-		return (print_digit(-n, base, upper) + 1);
-	}
-	else if (n < base)
-		return (print_ch(symbols[n]));
-	else
-	{
-		count += print_digit(n / base, base, upper);
-		return (count + print_digit(n % base, base, upper));
-	}
-}
+#include "ft_printf.h"
 
 int	print_format(char specifier, va_list args)
 {
@@ -63,12 +23,16 @@ int	print_format(char specifier, va_list args)
 		count += print_ch(va_arg(args, int));
 	else if (specifier == 's')
 		count += print_str(va_arg(args, char *));
-	else if (specifier == 'd')
+	else if (specifier == 'd' || specifier == 'i')
 		count += print_digit(va_arg(args, int), 10, 0);
 	else if (specifier == 'x')
 		count += print_digit(va_arg(args, unsigned int), 16, 0);
 	else if (specifier == 'X')
-		count += print_digit(va_arg(args, unsigned int), 16, 1);	
+		count += print_digit(va_arg(args, unsigned int), 16, 1);
+	else if (specifier == 'u')
+		count += print_unsigned(va_arg(args, unsigned int), 10);
+	else if (specifier == 'p')
+		count += print_ptr(va_arg(args, unsigned long long));
 	return (count);
 }
 
@@ -94,10 +58,13 @@ int	ft_printf(const char *format, ...)
 int	main(void)
 {
 	// Testing cases
-
+	int		n = 42;
+	printf("Hello pointer, %p\n", &n);
+	ft_printf("Hello custom pointer, %p\n", &n);
 	ft_printf("Hello, %d\n", -122);
-
 	ft_printf("Hello, %%\n", -32);
 	ft_printf("Hello, %x\n", -422);
+	printf("Hello, %u\n", 422);
+	ft_printf("Hello, %u\n", 422);
 	return (0);
 }
